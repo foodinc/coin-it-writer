@@ -93,7 +93,7 @@ export default function CreatorsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-10 px-4">
-      <div className="max-w-4xl mx-auto">
+  <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Creators</h1>
         <p className="mb-8 text-gray-700">Ranked by their coins' market cap, price, holders, and creation date/time.</p>
         {loading ? (

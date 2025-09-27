@@ -31,7 +31,7 @@ export default function CoinAnalyzerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex flex-col items-center py-10 px-4">
-      <Card className="w-full max-w-2xl">
+  <Card className="w-full max-w-5xl">
         <CardHeader>
           <CardTitle>Coin Analyzer</CardTitle>
           <p className="text-gray-600 mt-2 text-sm">Import your social pages, channels, and content links. We'll analyze what your account would be worth if it was a coin on our platform.</p>

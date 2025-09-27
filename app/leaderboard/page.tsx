@@ -15,7 +15,7 @@ export default function LeaderboardPage() {
   }, []);
 
   return (
-    <main className="max-w-4xl mx-auto py-12 px-4">
+  <main className="max-w-5xl mx-auto py-12 px-4">
       <h1 className="text-3xl font-bold mb-4">Leaderboard</h1>
       <p className="mb-6 text-gray-700">See the top-performing coins, creators, and channels on the platform. Track rankings and discover the most successful projects!</p>
       <div className="bg-white rounded-lg shadow p-6">

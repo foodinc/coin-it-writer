@@ -259,10 +259,15 @@ export default function CoinCard({ coin, isOwnCoin = false }: CoinCardProps) {
           {!isOwnCoin && (
             <Dialog open={tradeDialogOpen} onOpenChange={setTradeDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="default" size="xs" className="flex-1 px-1 py-1 text-xs h-7">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  Trade
-                </Button>
+               <Button
+  variant="default"
+  size="xs"
+  className="flex-1 px-1 py-1 text-xs h-7 bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-blue-400"
+>
+  <TrendingUp className="h-3 w-3 mr-1" />
+  Trade
+</Button>
+
               </DialogTrigger>
               <DialogContent className="sm:max-w-xs p-3">
                 <DialogHeader>

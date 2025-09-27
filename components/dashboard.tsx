@@ -13,6 +13,7 @@ import { useAccount } from 'wagmi';
 import { usePrivy, useLogout } from '@privy-io/react-auth';
 // import CoinCreationModal from './coin-creation-modal';
 import CoinCard from './coin-card';
+
 import { 
   getAllCoins, 
   getUserCoins, 
@@ -25,6 +26,7 @@ import {
   type CoinWithCreator,
   type User as UserType 
 } from '@/lib/supabase-queries';
+import { useTotalMarketCapRealtimeAccurate } from '@/lib/use-total-marketcap-accurate';
 
 export default function Dashboard() {
   const { address } = useAccount();
@@ -171,6 +173,9 @@ export default function Dashboard() {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
+
+  const totalMarketCap = useTotalMarketCapRealtimeAccurate();
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
@@ -183,38 +188,44 @@ export default function Dashboard() {
   }
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-4">
-    <div className="max-w-4xl mx-auto space-y-6 px-2 sm:px-4 md:px-8">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 my-2">
-          <Card className="p-2">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-4">
+  <div className="max-w-5xl mx-auto space-y-6 px-2 sm:px-4 md:px-8">
+        {/* Stats Cards */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 my-4 w-full">
+          {/* My Coins Card */}
+          <Card className="p-2 bg-gradient-to-br from-pink-100 to-pink-300 border-pink-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-2">
               <CardTitle className="text-xs font-semibold">My Coins</CardTitle>
-              <User className="h-3 w-3 text-muted-foreground" />
+              <User className="h-3 w-3 text-pink-600" />
             </CardHeader>
             <CardContent className="py-1 px-2">
               <div className="text-lg font-bold">{stats.userCoins}</div>
-              <p className="text-[10px] text-muted-foreground">Coins you&apos;ve created</p>
+              <p className="text-[10px] text-pink-700">Coins you&apos;ve created</p>
             </CardContent>
           </Card>
-          <Card className="p-2">
+          {/* Total Coins Card */}
+          <Card className="p-2 bg-gradient-to-br from-blue-100 to-blue-300 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-2">
               <CardTitle className="text-xs font-semibold">Total Coins</CardTitle>
-              <Coins className="h-3 w-3 text-muted-foreground" />
+              <Coins className="h-3 w-3 text-blue-600" />
             </CardHeader>
             <CardContent className="py-1 px-2">
               <div className="text-lg font-bold">{stats.totalCoins}</div>
-              <p className="text-[10px] text-muted-foreground">Across all creators</p>
+              <p className="text-[10px] text-blue-700">Across all creators</p>
+              <div className="mt-1 text-xs font-semibold text-blue-900">
+                Marketcap: {typeof totalMarketCap === 'number' ? `$${totalMarketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : 'Loading...'}
+              </div>
             </CardContent>
           </Card>
-          <Card className="p-2">
+          {/* Creators Card */}
+          <Card className="p-2 bg-gradient-to-br from-yellow-100 to-yellow-300 border-yellow-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-2">
               <CardTitle className="text-xs font-semibold">Creators</CardTitle>
-              <Users className="h-3 w-3 text-muted-foreground" />
+              <Users className="h-3 w-3 text-yellow-600" />
             </CardHeader>
             <CardContent className="py-1 px-2">
               <div className="text-lg font-bold">{stats.totalCreators}</div>
-              <p className="text-[10px] text-muted-foreground">Active on platform</p>
+              <p className="text-[10px] text-yellow-700">Active on platform</p>
             </CardContent>
           </Card>
         </div>
@@ -256,18 +267,18 @@ export default function Dashboard() {
             <TabsTrigger value="channels" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Channels
-              <Badge variant="secondary" className="ml-1">Coming soon</Badge>
-            </TabsTrigger>
+<Badge variant="secondary" className="ml-1">
+                {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'video')).length}
+              </Badge>            
+              </TabsTrigger>
           <TabsContent value="channels" className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">Channels</h2>
               <Badge variant="secondary">Coming soon</Badge>
             </div>
-            <div className="text-gray-500">Channel coins and features will appear here.</div>
           </TabsContent>
           </TabsList>
           <TabsContent value="blog" className="space-y-4">
-            <h2 className="text-2xl font-semibold mb-2">Publi Goods</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'blog')).map((coin) => (
                 <div key={coin.id} className="relative">
@@ -301,7 +312,6 @@ export default function Dashboard() {
             </div>
           </TabsContent>
           <TabsContent value="image" className="space-y-4">
-            <h2 className="text-2xl font-semibold mb-2">Image Coins</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'image')).map((coin) => (
                 <div key={coin.id} className="relative">
@@ -335,7 +345,6 @@ export default function Dashboard() {
             </div>
           </TabsContent>
           <TabsContent value="music" className="space-y-4">
-            <h2 className="text-2xl font-semibold mb-2">Music Coins</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'music')).map((coin) => (
                 <div key={coin.id} className="relative">
@@ -369,7 +378,6 @@ export default function Dashboard() {
             </div>
           </TabsContent>
           <TabsContent value="video" className="space-y-4">
-            <h2 className="text-2xl font-semibold mb-2">Video Coins</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'video')).map((coin) => (
                 <div key={coin.id} className="relative">
@@ -405,7 +413,6 @@ export default function Dashboard() {
 
           <TabsContent value="all" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">Explore</h2>
               <Badge variant="secondary">{filteredCoins.length} coins</Badge>
             </div>
             

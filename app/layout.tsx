@@ -35,7 +35,7 @@ export default function RootLayout({
         <Providers>
           {/* Global Header with Main Menu */}
           <header className="w-full border-b bg-white/80 backdrop-blur sticky top-0 z-30">
-            <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between py-4 px-4 sm:px-6 gap-2 sm:gap-0">
+            <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between py-4 px-4 sm:px-6 gap-2 sm:gap-0">
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 w-full sm:w-auto">
                 <a href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">CoinIt</a>
                 <nav className="w-full sm:w-auto">
