@@ -189,9 +189,9 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-4">
-  <div className="max-w-5xl mx-auto space-y-6 px-2 sm:px-4 md:px-8">
+      <div className="max-w-5xl mx-auto space-y-6 px-2 sm:px-4 md:px-8">
         {/* Stats Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 my-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 my-4 w-full">
           {/* My Coins Card */}
           <Card className="p-2 bg-gradient-to-br from-pink-100 to-pink-300 border-pink-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-2">
@@ -232,10 +232,7 @@ export default function Dashboard() {
 
         {/* Coins Tabs */}
         <Tabs defaultValue="blog" className="space-y-4">
-          <TabsList
-            className="w-full flex overflow-x-auto no-scrollbar gap-2 sm:gap-4 px-1 sm:px-0"
-            style={{ WebkitOverflowScrolling: 'touch' }}
-          >
+          <TabsList className="w-full flex overflow-x-auto no-scrollbar gap-2 sm:gap-4 px-1 sm:px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
             <TabsTrigger value="blog" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               PublicGoods
@@ -264,6 +261,160 @@ export default function Dashboard() {
                 {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'video')).length}
               </Badge>
             </TabsTrigger>
+            <TabsTrigger value="gif" className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="13" rx="2" /></svg>
+              GIFs
+              <Badge variant="secondary" className="ml-1">
+                {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'gif')).length}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'music')).map((coin) => (
+                <div key={coin.id} className="relative">
+                  <CoinCard 
+                    coin={{
+                      id: coin.id,
+                      name: coin.name,
+                      symbol: coin.symbol,
+                      address: coin.coin_address,
+                      creator: coin.creator_wallet,
+                      createdAt: coin.created_at,
+                      metadata: coin.metadata,
+                      ipfsUri: coin.ipfs_uri,
+                    }}
+                    isOwnCoin={coin.creator_wallet.toLowerCase() === address?.toLowerCase()}
+                  />
+                  {coin.creator_wallet.toLowerCase() === address?.toLowerCase() && (
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleDeleteCoin(coin.id)}
+                        className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="video" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'video')).map((coin) => (
+                <div key={coin.id} className="relative">
+                  <CoinCard 
+                    coin={{
+                      id: coin.id,
+                      name: coin.name,
+                      symbol: coin.symbol,
+                      address: coin.coin_address,
+                      creator: coin.creator_wallet,
+                      createdAt: coin.created_at,
+                      metadata: coin.metadata,
+                      ipfsUri: coin.ipfs_uri,
+                    }}
+                    isOwnCoin={coin.creator_wallet.toLowerCase() === address?.toLowerCase()}
+                  />
+                  {coin.creator_wallet.toLowerCase() === address?.toLowerCase() && (
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleDeleteCoin(coin.id)}
+                        className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="gif" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredCoins.filter(c => (c.metadata && 'type' in c.metadata && (c.metadata as any).type === 'gif')).map((coin) => (
+                <div key={coin.id} className="relative">
+                  <CoinCard 
+                    coin={{
+                      id: coin.id,
+                      name: coin.name,
+                      symbol: coin.symbol,
+                      address: coin.coin_address,
+                      creator: coin.creator_wallet,
+                      createdAt: coin.created_at,
+                      metadata: coin.metadata,
+                      ipfsUri: coin.ipfs_uri,
+                    }}
+                    isOwnCoin={coin.creator_wallet.toLowerCase() === address?.toLowerCase()}
+                  />
+                  {coin.creator_wallet.toLowerCase() === address?.toLowerCase() && (
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleDeleteCoin(coin.id)}
+                        className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+            <TabsTrigger value="misc" className="flex items-center gap-2">
+              <Coins className="h-4 w-4" />
+              Misc
+              <Badge variant="secondary" className="ml-1">
+                {filteredCoins.filter(c => (!c.metadata || !('type' in c.metadata) || !(c.metadata as any).type)).length}
+              </Badge>
+            </TabsTrigger>
+          <TabsContent value="misc" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredCoins.filter(c => (!c.metadata || !('type' in c.metadata) || !(c.metadata as any).type)).map((coin) => {
+                // Debug log for coin object
+                console.log('[MiscTab] Coin:', coin);
+                // Fallbacks for missing fields
+                const safeName = coin.name || '(No Name)';
+                const safeSymbol = coin.symbol || '(No Symbol)';
+                const safeAddress = coin.coin_address || '(No Address)';
+                return (
+                  <div key={coin.id} className="relative">
+                    <CoinCard 
+                      coin={{
+                        id: coin.id,
+                        name: safeName,
+                        symbol: safeSymbol,
+                        address: safeAddress,
+                        creator: coin.creator_wallet,
+                        createdAt: coin.created_at,
+                        metadata: coin.metadata,
+                        ipfsUri: coin.ipfs_uri,
+                      }}
+                      isOwnCoin={coin.creator_wallet?.toLowerCase() === address?.toLowerCase()}
+                    />
+                    {coin.creator_wallet?.toLowerCase() === address?.toLowerCase() && (
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleDeleteCoin(coin.id)}
+                          className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
             <TabsTrigger value="channels" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Channels
