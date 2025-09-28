@@ -369,7 +369,7 @@ export default function Dashboard() {
           </TabsContent>
             <TabsTrigger value="misc" className="flex items-center gap-2">
               <Coins className="h-4 w-4" />
-              Misc
+              Misce
               <Badge variant="secondary" className="ml-1">
                 {filteredCoins.filter(c => (!c.metadata || !('type' in c.metadata) || !(c.metadata as any).type)).length}
               </Badge>
