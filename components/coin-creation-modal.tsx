@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, ChangeEvent } from "react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -249,23 +250,28 @@ function CoinCreationModal({ onCoinCreated }: CoinCreationModalProps) {
                   onClick={async () => {
                     setIsLoading(true);
                     setError("");
-                    setCoinData(null);
                     try {
-                      console.log('[LegacyCoin] Starting image coin creation');
+                      // 1. Upload image to IPFS (Pinata or your preferred service)
                       const formData = new FormData();
-                      formData.append("image", imageFile!);
-                      formData.append("name", tokenName);
-                      formData.append("symbol", tokenSymbol);
+                      formData.append("file", imageFile!);
+                      // Add metadata as JSON
+                      const metadata = {
+                        name: tokenName,
+                        symbol: tokenSymbol,
+                        description: imageDescription,
+                        type: "image",
+                        createdAt: new Date().toISOString(),
+                        creator: address,
+                      };
+                      formData.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
                       const pinataRes = await fetch("/api/upload-metadata", {
                         method: "POST",
                         body: formData,
                       });
                       const pinataData = await pinataRes.json();
-                      console.log('[LegacyCoin] Pinata response', pinataData);
-                      console.log('[LegacyCoin] PinataData keys', Object.keys(pinataData));
                       if (!pinataRes.ok) throw new Error(pinataData.error || "Failed to upload image to IPFS");
                       const ipfsUri = pinataData.ipfsUri;
-                      console.log('[LegacyCoin] IPFS URI', ipfsUri);
+                      // 2. Mint the coin on Zora
                       if (!walletClient || !publicClient || !address) throw new Error("Wallet not connected");
                       const deployParams = {
                         name: tokenName,
@@ -275,28 +281,26 @@ function CoinCreationModal({ onCoinCreated }: CoinCreationModalProps) {
                         platformReferrer: address as Address,
                         chainId: base.id,
                       };
-                      console.log('[LegacyCoin] Deploy params', deployParams);
                       const txResult = await createCoin(
                         deployParams,
                         walletClient,
                         publicClient
                       );
-                      console.log('[LegacyCoin] Coin created onchain', txResult);
                       const contractAddress = txResult.address;
                       if (!contractAddress) throw new Error("Failed to get contract address from deployment");
+                      // 3. Save coin to DB
                       const coinRes = await createCoinInDb({
                         name: tokenName,
                         symbol: tokenSymbol,
                         coin_address: contractAddress,
                         creator_wallet: address,
                         metadata: {
-                          ...(pinataData.metadata || {}),
+                          ...metadata,
                           ipfsUri,
                           ipfsHash: pinataData.ipfsHash,
                           gatewayUrl: pinataData.gatewayUrl,
                         },
                       });
-                      console.log('[LegacyCoin] Supabase insert result', coinRes);
                       setCoinData({
                         coinAddress: contractAddress,
                         coinId: coinRes.id,
@@ -307,6 +311,7 @@ function CoinCreationModal({ onCoinCreated }: CoinCreationModalProps) {
                         gatewayUrl: pinataData.gatewayUrl,
                         coinParams: deployParams as any,
                       });
+                      toast.success("Coin created successfully!");
                       if (onCoinCreated) onCoinCreated({
                         coinAddress: contractAddress,
                         coinId: coinRes.id,
@@ -318,8 +323,8 @@ function CoinCreationModal({ onCoinCreated }: CoinCreationModalProps) {
                         coinParams: deployParams as any,
                       });
                     } catch (err: any) {
-                      console.error('[LegacyCoin] Error', err);
                       setError(err.message || "Failed to create image coin");
+                      toast.error(err.message || "Failed to create image coin");
                     } finally {
                       setIsLoading(false);
                     }
@@ -401,7 +406,6 @@ function CoinCreationModal({ onCoinCreated }: CoinCreationModalProps) {
                   onClick={async () => {
                     setIsLoading(true);
                     setError("");
-                    setCoinData(null);
                     try {
                       // 1. Upload music file to IPFS (Pinata or your preferred service)
                       const formData = new FormData();
@@ -463,6 +467,7 @@ function CoinCreationModal({ onCoinCreated }: CoinCreationModalProps) {
                         gatewayUrl: pinataData.gatewayUrl,
                         coinParams: deployParams as any,
                       });
+                      toast.success("Music coin created successfully!");
                       if (onCoinCreated) onCoinCreated({
                         coinAddress: contractAddress,
                         coinId: coinRes.id,
@@ -475,6 +480,7 @@ function CoinCreationModal({ onCoinCreated }: CoinCreationModalProps) {
                       });
                     } catch (err: any) {
                       setError(err.message || "Failed to create music coin");
+                      toast.error(err.message || "Failed to create music coin");
                     } finally {
                       setIsLoading(false);
                     }

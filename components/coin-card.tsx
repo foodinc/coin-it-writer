@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ExternalLink, Calendar, User, Coins, Copy, Check, TrendingUp } from 'lucide-react';
+import { CoinStatsIcons } from './coin-stats-icons';
 import { useState, useEffect } from 'react';
 import { parseEther } from "viem";
 import {
@@ -51,8 +52,8 @@ export default function CoinCard({ coin, isOwnCoin = false }: CoinCardProps) {
   const [loading, setLoading] = useState(false);
 
   // Fixed card size for uniformity
-  const CARD_WIDTH = 260;
-  const CARD_HEIGHT = 420;
+  const CARD_WIDTH = 241;
+  const CARD_HEIGHT = 375;
   const [txHash, setTxHash] = useState<string | null>(null);
   const [, setError] = useState<string | null>(null);
   const [ethAmount, setEthAmount] = useState("0.0001");
@@ -105,12 +106,16 @@ export default function CoinCard({ coin, isOwnCoin = false }: CoinCardProps) {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+  // Returns e.g. 3d, 155d, 4m, 2y
+  const formatAge = (dateString: string) => {
+    const now = new Date();
+    const created = new Date(dateString);
+    const diff = now.getTime() - created.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    if (days < 1) return 'today';
+    if (days < 30) return days + 'd';
+    if (days < 365) return Math.floor(days / 30) + 'm';
+    return Math.floor(days / 365) + 'y';
   };
 
   const handleTrade = async (coinAddress: `0x${string}`) => {
@@ -160,7 +165,7 @@ export default function CoinCard({ coin, isOwnCoin = false }: CoinCardProps) {
               <Coins className="h-4 w-4" />
               <span className="truncate">{coin.name}</span>
               {isOwnCoin && (
-                <Badge variant="secondary" className="bg-purple-100 text-purple-800 ml-1">Your Coin</Badge>
+                <Badge variant="secondary" className="bg-purple-100 text-purple-800 ml-1">by you</Badge>
               )}
             </CardTitle>
             <CardDescription className="flex items-center gap-1 mt-0.5 text-xs text-gray-500">
@@ -179,18 +184,14 @@ export default function CoinCard({ coin, isOwnCoin = false }: CoinCardProps) {
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col gap-2 px-3 py-2">
-        {/* Compact Coin Stats */}
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-gray-700">
-          <div><span className="font-semibold">Price</span>: {price !== null ? `$${Number(price).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })}` : '--'}</div>
-          <div><span className="font-semibold">MCap</span>: {marketCap !== null ? `$${marketCap}` : '--'}</div>
-          <div><span className="font-semibold">Vol 24h</span>: {volume24h !== null ? `$${volume24h}` : '--'}</div>
-          <div><span className="font-semibold">Holders</span>: {uniqueHolders !== null ? uniqueHolders : '--'}</div>
-        </div>
-        <div className="text-xs text-gray-700">
-          <span className="font-semibold">Earnings</span>: {creatorEarnings && creatorEarnings.length > 0 ? (
-            <span>{creatorEarnings[0].amount.amountDecimal} ({creatorEarnings[0].amount.currencyAddress}){creatorEarnings[0].amountUsd ? ` ≈ $${creatorEarnings[0].amountUsd}` : ''}</span>
-          ) : '--'}
-        </div>
+        {/* Stats with icons */}
+        <CoinStatsIcons
+          price={price}
+          marketCap={marketCap}
+          volume24h={volume24h}
+          uniqueHolders={uniqueHolders}
+          earnings={creatorEarnings && creatorEarnings.length > 0 ? `${creatorEarnings[0].amount.amountDecimal} (${creatorEarnings[0].amount.currencyAddress})${creatorEarnings[0].amountUsd ? ` ≈ $${creatorEarnings[0].amountUsd}` : ''}` : null}
+        />
         {/* Blog Metadata (compact) */}
         {coin.metadata && (
           <div className="space-y-1">
@@ -242,28 +243,20 @@ export default function CoinCard({ coin, isOwnCoin = false }: CoinCardProps) {
           </div>
           <div className="flex items-center gap-1 text-gray-600">
             <Calendar className="h-3 w-3" />
-            <span>Created</span>: {formatDate(coin.createdAt)}
+            <span>{formatAge(coin.createdAt)}</span>
           </div>
         </div>
 
         {/* Actions (compact) */}
         <div className="flex gap-1 pt-1">
-          {coin.ipfsUri && (
-            <Button variant="outline" size="xs" asChild className="flex-1 px-1 py-1 text-xs h-7">
-              <a href={coin.ipfsUri} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-3 w-3 mr-1" />
-                Metadata
-              </a>
-            </Button>
-          )}
           {!isOwnCoin && (
             <Dialog open={tradeDialogOpen} onOpenChange={setTradeDialogOpen}>
               <DialogTrigger asChild>
-               <Button
-  variant="default"
-  size="xs"
-  className="flex-1 px-1 py-1 text-xs h-7 bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-blue-400"
->
+              <Button
+    variant="default"
+    size="sm"
+    className="flex-1 px-1 py-1 text-xs h-7 bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-blue-400"
+  >
   <TrendingUp className="h-3 w-3 mr-1" />
   Trade
 </Button>

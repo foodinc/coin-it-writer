@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./poppins.css";
 import Providers from "@/components/providers";
+import ToastProvider from "@/components/toast-provider";
 import CoinCreationModal from "@/components/coin-creation-modal";
 
 const geistSans = Geist({
@@ -27,15 +28,29 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Simple dark mode toggle
+  const toggleDark = () => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark');
+    }
+  };
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
+        <button
+          onClick={toggleDark}
+          style={{position: 'fixed', top: 12, right: 12, zIndex: 9999}}
+          className="rounded px-3 py-1 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 shadow"
+        >
+          Toggle Dark Mode
+        </button>
+        <ToastProvider>
+          <Providers>
           {/* Global Header with Main Menu */}
-          <header className="w-full border-b bg-white/80 backdrop-blur sticky top-0 z-30">
-            <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between py-4 px-4 sm:px-6 gap-2 sm:gap-0">
+          <header className="w-full border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky top-0 z-30">
+            <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between py-4 px-4 sm:px-6 gap-2 sm:gap-0">
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 w-full sm:w-auto">
                 <a href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">CoinIt</a>
                 <nav className="w-full sm:w-auto">
@@ -59,7 +74,8 @@ export default function RootLayout({
             {children}
           </main>
   <MobileFooter />
-  </Providers>
+          </Providers>
+        </ToastProvider>
       </body>
     </html>
   );
