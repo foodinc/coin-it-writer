@@ -7,10 +7,44 @@ export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type') || '';
 
-    // Handle multipart/form-data (image coin)
+    // Handle multipart/form-data (image coin or channel with avatar)
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
       const imageFile = formData.get('image');
+      const metadataJson = formData.get('metadata')?.toString();
+
+      // If we have metadata JSON, this is a channel import
+      if (metadataJson) {
+        const metadata = JSON.parse(metadataJson);
+        
+        // If we have an avatar image, upload it first
+        if (imageFile && typeof imageFile !== 'string') {
+          const { cid: imageCid } = await pinata.upload.public.file(imageFile);
+          const imageIpfsUri = `ipfs://${imageCid}`;
+          const imageGatewayUrl = await pinata.gateways.public.convert(imageCid);
+          
+          // Update metadata with IPFS image URLs
+          metadata.image = imageIpfsUri;
+          metadata.image_url = imageGatewayUrl;
+        }
+
+        // Upload the complete metadata
+        const jsonString = JSON.stringify(metadata, null, 2);
+        const metaFile = new File([jsonString], `channel-metadata-${Date.now()}.json`, {
+          type: 'application/json',
+        });
+        const { cid } = await pinata.upload.public.file(metaFile);
+        const gatewayUrl = await pinata.gateways.public.convert(cid);
+
+        return NextResponse.json({
+          ipfsUri: `ipfs://${cid}`,
+          ipfsHash: cid,
+          gatewayUrl,
+          metadata
+        });
+      }
+      
+      // Regular image coin upload
       const name = formData.get('name')?.toString() || 'Image Coin';
       const symbol = formData.get('symbol')?.toString() || '';
 
